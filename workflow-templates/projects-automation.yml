@@ -1,0 +1,176 @@
+name: Projects Automation
+on:
+  issues:
+    types:
+      - opened
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - ready_for_review
+      - review_requested
+jobs:
+  track_issue:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issues' && github.event.action == 'opened'
+    steps:
+      - name: Get project data
+        env:
+          GITHUB_TOKEN: ${{ secrets.PROJECTS_AUTOMATION }}
+          ORGANIZATION: uoy-trials
+          PROJECT_NUMBER: 3
+        run: |
+          gh api graphql -f query='
+            query($org: String!, $number: Int!) {
+              organization(login: $org){
+                projectNext(number: $number) {
+                  id
+                  fields(first:20) {
+                    nodes {
+                      id
+                      name
+                      settings
+                    }
+                  }
+                }
+              }
+            }' -f org=$ORGANIZATION -F number=$PROJECT_NUMBER > project_data.json
+          
+          echo 'PROJECT_ID='$(jq '.data.organization.projectNext.id' project_data.json) >> $GITHUB_ENV
+          echo 'ITERATION_FIELD_ID='$(jq '.data.organization.projectNext.fields.nodes[] | select(.name== "Iteration") | .id' project_data.json) >> $GITHUB_ENV
+          echo 'LATEST_ITERATION='$(jq '.data.organization.projectNext.fields.nodes[] | select(.name== "Iteration") | .settings | fromjson.configuration | .iterations |= sort_by(.start_date) | .iterations | reverse | .[0] | .id' project_data.json) >> $GITHUB_ENV
+          echo 'STATUS_FIELD_ID='$(jq '.data.organization.projectNext.fields.nodes[] | select(.name== "Status") | .id' project_data.json) >> $GITHUB_ENV
+          echo 'TODO_OPTION_ID='$(jq '.data.organization.projectNext.fields.nodes[] | select(.name== "Status") |.settings | fromjson.options[] | select(.name=="Todo ❗") |.id' project_data.json) >> $GITHUB_ENV
+      - name: Add Issue to project
+        env:
+          GITHUB_TOKEN: ${{ secrets.PROJECTS_AUTOMATION }}
+          ISSUE_ID: ${{ github.event.issue.node_id }}
+        run: |
+          item_id="$( gh api graphql --header 'GraphQL-Features: projects_next_graphql' -f query='
+            mutation($project:ID!, $issue:ID!) {
+              addProjectNextItem(input: {projectId: $project, contentId: $issue}) {
+                projectNextItem {
+                  id
+                }
+              }
+            }' -f project=$PROJECT_ID -f issue=$ISSUE_ID --jq '.data.addProjectNextItem.projectNextItem.id')"
+          
+          echo 'ITEM_ID='$item_id >> $GITHUB_ENV
+
+      - name: Set fields
+        env:
+          GITHUB_TOKEN: ${{ secrets.PROJECTS_AUTOMATION }}
+        run: |
+          gh api graphql -f query='
+            mutation (
+              $project: ID!
+              $item: ID!
+              $status_field: ID!
+              $status_value: String!
+              $iteration_field: ID!
+              $iteration_value: String!
+            ) {
+              set_status: updateProjectNextItemField(input: {
+                projectId: $project
+                itemId: $item
+                fieldId: $status_field
+                value: $status_value
+              }) {
+                projectNextItem {
+                  id
+                  }
+              }
+              set_iteration: updateProjectNextItemField(input: {
+                projectId: $project
+                itemId: $item
+                fieldId: $iteration_field
+                value: $iteration_value
+              }) {
+                projectNextItem {
+                  id
+                }
+              }
+            }' -f project=$PROJECT_ID -f item=$ITEM_ID -f status_field=$STATUS_FIELD_ID -f status_value=${{ env.TODO_OPTION_ID }} -f iteration_field=$ITERATION_FIELD_ID -f iteration_value=${{ env.LATEST_ITERATION }} --silent
+            
+  track_pr:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'ready_for_review' || github.event.action == 'review_requested')
+    steps:
+      - name: Get project data
+        env:
+          GITHUB_TOKEN: ${{ secrets.PROJECTS_AUTOMATION }}
+          ORGANIZATION: uoy-trials
+          PROJECT_NUMBER: 3
+        run: |
+          gh api graphql -f query='
+            query($org: String!, $number: Int!) {
+              organization(login: $org){
+                projectNext(number: $number) {
+                  id
+                  fields(first:20) {
+                    nodes {
+                      id
+                      name
+                      settings
+                    }
+                  }
+                }
+              }
+            }' -f org=$ORGANIZATION -F number=$PROJECT_NUMBER > project_data.json
+
+          echo 'PROJECT_ID='$(jq '.data.organization.projectNext.id' project_data.json) >> $GITHUB_ENV
+          echo 'ITERATION_FIELD_ID='$(jq '.data.organization.projectNext.fields.nodes[] | select(.name== "Iteration") | .id' project_data.json) >> $GITHUB_ENV
+          echo 'LATEST_ITERATION='$(jq '.data.organization.projectNext.fields.nodes[] | select(.name== "Iteration") | .settings | fromjson.configuration | .iterations |= sort_by(.start_date) | .iterations | reverse | .[0] | .id' project_data.json) >> $GITHUB_ENV
+          echo 'STATUS_FIELD_ID='$(jq '.data.organization.projectNext.fields.nodes[] | select(.name== "Status") | .id' project_data.json) >> $GITHUB_ENV
+          echo 'TODO_OPTION_ID='$(jq '.data.organization.projectNext.fields.nodes[] | select(.name== "Status") |.settings | fromjson.options[] | select(.name=="Todo ❗") |.id' project_data.json) >> $GITHUB_ENV
+
+      - name: Add PR to project
+        env:
+          GITHUB_TOKEN: ${{ secrets.PROJECTS_AUTOMATION }}
+          PR_ID: ${{ github.event.pull_request.node_id }}
+        run: |
+          item_id="$( gh api graphql -f query='
+            mutation($project:ID!, $pr:ID!) {
+              addProjectNextItem(input: {projectId: $project, contentId: $pr}) {
+                projectNextItem {
+                  id
+                }
+              }
+            }' -f project=$PROJECT_ID -f pr=$PR_ID --jq '.data.addProjectNextItem.projectNextItem.id')"
+          
+          echo 'ITEM_ID='$item_id >> $GITHUB_ENV
+
+      - name: Set fields
+        env:
+          GITHUB_TOKEN: ${{ secrets.PROJECTS_AUTOMATION }}
+        run: |
+          gh api graphql -f query='
+            mutation (
+              $project: ID!
+              $item: ID!
+              $status_field: ID!
+              $status_value: String!
+              $iteration_field: ID!
+              $iteration_value: String!
+            ) {
+              set_status: updateProjectNextItemField(input: {
+                projectId: $project
+                itemId: $item
+                fieldId: $status_field
+                value: $status_value
+              }) {
+                projectNextItem {
+                  id
+                  }
+              }
+              set_iteration: updateProjectNextItemField(input: {
+                projectId: $project
+                itemId: $item
+                fieldId: $iteration_field
+                value: $iteration_value
+              }) {
+                projectNextItem {
+                  id
+                }
+              }
+            }' -f project=$PROJECT_ID -f item=$ITEM_ID -f status_field=$STATUS_FIELD_ID -f status_value=${{ env.TODO_OPTION_ID }} -f iteration_field=$ITERATION_FIELD_ID -f iteration_value=${{ env.LATEST_ITERATION }} --silent            
