@@ -3,7 +3,7 @@ name: Iteration Miscellany Template
 about: A template for all the regular, and less regular bitty bits of work over an
   iteration
 title: "{iteration name} - Miscellany"
-assignees: tp1045
+assignees: 
 
 ---
 
