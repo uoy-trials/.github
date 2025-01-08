@@ -8,7 +8,15 @@ Describe the solution.
 Any relevant details?
 
 **Suggested Testing**
-Steps on how to test the work carried out including any helpful code snippets etc.
+Steps to test the changes, including any helpful code snippets, example scenarios, etc.
+
+**Review Tasks**
+
+[PR review wiki](https://github.com/uoy-trials/about-dev/wiki/GitHub-Review-Process)
+- [ ] close any linked change requests
+- [ ] add relevant labels to the pr
+- [ ] create a new release
+
 
 ChaReq link:
 
