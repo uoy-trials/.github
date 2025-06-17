@@ -1,5 +1,8 @@
 name: .NET_5.0_Build
 
+permissions:
+  contents: read
+
 on:
   push:
     branches: [ development/*, main ]
