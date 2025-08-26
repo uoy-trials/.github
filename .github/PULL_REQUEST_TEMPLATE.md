@@ -7,6 +7,11 @@ Describe the solution.
 **Notes**
 Any relevant details?
 
+### Accessibility
+Making changes that effect text or formatting? 
+- [ ] Check new/updated HTML using the [WAVE browser extension](https://wave.webaim.org/extension/).
+- [ ] Ensure any new text is easy to read by checking it with the [Readability Test — The First Word](https://thefirstword.com/readability-test/).
+
 **Suggested Testing**
 Steps to test the changes, including any helpful code snippets, example scenarios, etc.
 
