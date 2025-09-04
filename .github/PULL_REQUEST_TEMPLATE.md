@@ -7,6 +7,9 @@ Describe the solution.
 **Notes**
 Any relevant details?
 
+**Documentation**
+Any documentation that has ben changed as part of this PR? Link it here.
+
 **Suggested Testing**
 Steps to test the changes, including any helpful code snippets, example scenarios, etc.
 
