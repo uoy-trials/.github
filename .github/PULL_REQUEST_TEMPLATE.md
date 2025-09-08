@@ -7,6 +7,9 @@ Describe the solution.
 **Notes**
 Any relevant details?
 
+**Documentation**
+Any documentation that has ben changed as part of this PR? Link it here.
+
 **Accessibility**
 Making changes that effect text or formatting? 
 - [ ] Check new/updated HTML using the [WAVE browser extension](https://wave.webaim.org/extension/).
