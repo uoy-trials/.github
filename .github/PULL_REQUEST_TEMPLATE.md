@@ -8,7 +8,7 @@ Describe the solution.
 Any relevant details?
 
 **Documentation**
-Any documentation that has ben changed as part of this PR? Link it here.
+Any documentation that has been changed as part of this PR? Link it here.
 
 **Accessibility**
 Making changes that effect text or formatting? 
