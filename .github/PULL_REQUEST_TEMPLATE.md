@@ -14,6 +14,8 @@ Any documentation that has been changed as part of this PR? Link it here.
 Making changes that effect text or formatting? 
 - [ ] Check new/updated HTML using the [WAVE browser extension](https://wave.webaim.org/extension/).
 - [ ] Ensure any new text is easy to read by checking it with the [Readability Test — The First Word](https://www.thefirstword.co.uk/readabilitytest).
+- [ ] Check all UI changes against darkmode/lightmode.
+- [ ] Ensure the console log is not showing any errors in DevTools.
 
 **Suggested Testing**
 Steps to test the changes, including any helpful code snippets, example scenarios, etc.
