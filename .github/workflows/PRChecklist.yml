@@ -1,0 +1,44 @@
+name: "Check Approval Comment for Checklist"
+
+on:
+  pull_request_review:
+    types: [submitted, edited] 
+
+jobs:
+  check_latest_approval:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check latest approval comment
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.AUTH_GITHUB_TOKEN }}
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const approvalTitle = "**Approval Checklist:**";
+
+            const reviews = await github.rest.pulls.listReviews({owner: context.repo.owner, repo: context.repo.repo, pull_number: prNumber});
+
+            const approvedReviews = reviews.data.filter(r => r.state === "APPROVED");
+
+            const latestByReviewer = {};
+            for (const review of approvedReviews) {
+              const login = review.user.login;
+              if (!latestByReviewer[login] || new Date(review.submitted_at) > new Date(latestByReviewer[login].submitted_at)) {
+                latestByReviewer[login] = review;
+              }
+            }
+
+            for (const reviewer in latestByReviewer) {
+              const review = latestByReviewer[reviewer];
+              const comment = review.body || "";
+
+              if (!comment.includes(approvalTitle)) {
+                core.setFailed(`Reviewer @${reviewer} did not add the approval checklist in their latest approval.`);
+              }
+
+              if (comment.includes("- [ ]")) {
+                core.setFailed(`Reviewer @${reviewer} has unchecked items in their approval checklist.`);
+              }
+            }
+
+            console.log("All latest approval comments include the checklist and have no unchecked boxes.");
