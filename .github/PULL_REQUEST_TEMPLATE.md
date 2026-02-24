@@ -10,6 +10,7 @@ Steps to test the changes, including any helpful code snippets, example scenario
 ### Checklist
 - [ ] Notes?
 - [ ] Documentation?
+- [ ] ChaReq approved?
 - [ ] DB changes accounted for?
 - [ ] [WAVE browser extension](https://wave.webaim.org/extension/)
 - [ ] [Readability Test — The First Word](https://www.thefirstword.co.uk/readabilitytest)
