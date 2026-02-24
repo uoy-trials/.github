@@ -4,7 +4,7 @@ Details of the linked issue.
 **Fix:**
 Describe the solution.
 
-**Suggested Testing**
+**Suggested Testing:**
 Steps to test the changes, including any helpful code snippets, example scenarios, etc.
 
 ### Checklist
