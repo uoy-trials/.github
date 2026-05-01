@@ -27,6 +27,7 @@ Steps to test the changes, including any helpful code snippets, example scenario
 - [ ] Check all UI changes against darkmode/lightmode.
 - [ ] Ensure the console log is not showing any errors in DevTools.
 - [ ] dotnet format?
+- [ ] code cleanup
 
 
 ChaReq link:
