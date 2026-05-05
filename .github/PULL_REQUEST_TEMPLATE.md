@@ -26,6 +26,8 @@ Steps to test the changes, including any helpful code snippets, example scenario
 - [ ] [Readability Test — The First Word](https://www.thefirstword.co.uk/readabilitytest)
 - [ ] Check all UI changes against darkmode/lightmode.
 - [ ] Ensure the console log is not showing any errors in DevTools.
+- [ ] dotnet format?
+- [ ] code cleanup
 
 
 ChaReq link:
